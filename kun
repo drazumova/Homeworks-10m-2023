@@ -1,0 +1,67 @@
+#include<bits/stdc++.h>
+using namespace std;
+int n , m;
+vector <vector<int> > g;
+vector<int> mt;
+vector<char> used;
+
+bool kun(int v) {
+    if (used[v]){
+        return false;
+    }
+    used[v] = true;
+    for (int u : g[v]) {
+        if (mt[u] == -1 or kun(mt[u])) {
+            mt[u] = v;
+            return true;
+        }
+    }
+    return false;
+}
+void parsoch(){
+    for(int i = 1 ; i < mt.size() ; i++){
+        mt[i] = -1;
+    }
+    for (int i = 1; i <= n; i++) {
+        for(int i = 1 ; i < used.size() ; i++){
+            used[i] = 0;
+        }
+        kun(i);
+    }
+}
+
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    cin >> n >> m;
+    g.resize(n + 1);
+    used.resize(n + 1);
+    mt.resize(m + 1);
+    for(int i = 1 ; i <= n ; i++){
+        int y;
+        while(cin >> y){
+            if(y == 0){
+                break;
+            }
+            else{
+                g[i].push_back(y);
+            }
+        }
+
+    }
+    parsoch();
+    int ch = 0;
+    for (int i = 1 ; i <= m; i++){
+		if (mt[i] != -1){
+			ch++;
+		}
+    }
+    cout << ch << "\n";
+    for (int i = 1 ; i <= m; i++){
+		if (mt[i] != -1){
+			cout << mt[i] << " " << i << "\n";
+		}
+    }
+}
