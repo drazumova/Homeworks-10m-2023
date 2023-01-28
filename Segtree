@@ -1,0 +1,132 @@
+#include <iostream>
+#include <vector>
+
+#define int long long
+using namespace std;
+
+const int INF = -2e18;
+int func(int a , int b){      //нужная операция
+	return min(a , b);
+}
+struct Segtree{             //дерево отрезков
+    int v = 0;
+    Segtree* l;
+    Segtree* r;
+    int d = 0;
+    bool flag = false;
+    Segtree(int v = -INF){     //конструктор
+        this -> v = v;
+        l = r = 0;
+    }
+    Segtree(Segtree* l1 , Segtree* r1){   //инициализация
+        l = l1;
+        r = r1;
+        v = func(l -> v , r -> v);
+    }
+};
+void excite(Segtree *t  , int d  , bool Q){ //помогает в пуше
+	if(Q){
+		t -> v = d;
+		t -> d = d;
+		t -> flag = true;
+	}
+	else{
+		t -> v += d;
+		t -> d += d;
+	}
+}
+void push(Segtree* t){                       //производит проталкивание из корня
+	excite(t -> l  , t -> d , t -> flag);
+	excite(t -> r  , t -> d , t -> flag);
+    t -> flag = false;
+    t -> d = 0;
+}
+
+Segtree *build(const vector<int> &a , int tl , int tr){   //построение
+    if (tl + 1 == tr){
+        return new Segtree(a[tl]);
+    }
+    int tm = (tl + tr) / 2;
+    return new Segtree(build(a , tl , tm) , build(a , tm , tr));
+}
+
+int get_result(Segtree* t , int l , int r , int tl , int tr){      //взятие операции
+    if (l <= tl && tr <= r){
+        return t -> v;
+    }
+    push(t);
+    int tm = (tl + tr) / 2;
+    if (l >= tm){
+        return get_result(t -> r , l , r , tm , tr);
+    }
+    else if (r <= tm){
+        return get_result(t -> l , l , r , tl , tm);
+    }
+    return func(get_result(t -> l , l , tm , tl , tm) , get_result(t -> r , tm , r , tm , tr));
+}
+
+void update(Segtree* t , int pos , int new_val , int tl , int tr){  //изменение
+    push(t);
+    if (tl + 1 == tr){
+        return void(t -> v = new_val);
+    }
+    int tm = (tl + tr) / 2;
+    if (pos < tm){
+        update(t -> l , pos , new_val , tl , tm);
+    }
+    else{
+        update(t -> r , pos , new_val , tm , tr);
+    }
+    t -> v = func(t -> l -> v , t -> r -> v);
+}
+
+void delta(Segtree* t , int l , int r , int d , int tl , int tr , bool flag){  // изменение на отрезке
+    if (l <= tl && tr <= r){
+        excite(t  , d  , flag);
+        return;
+    }
+    push(t);
+    int tm = (tl + tr) / 2;
+    if (r <= tm){
+        delta(t -> l , l , r , d , tl , tm , flag);
+    }
+    else if (l >= tm){
+        delta(t -> r , l , r , d , tm , tr , flag);
+    }
+    else{
+        delta(t -> l , l , tm , d , tl , tm , flag);
+        delta(t -> r , tm , r , d , tm , tr , flag);
+    }
+    t -> v = func(t -> l -> v  , t -> r -> v);
+}
+
+signed main(){
+	ios_base::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    for (int i = 0; i < n; i++){
+        cin >> a[i];
+    }
+    Segtree* root = build(a , 0 , n);
+    string s;
+    while (cin >> s){
+        if (s == "min"){
+            int a , b;
+            cin >> a >> b;
+            cout << get_result(root , a - 1 , b , 0 , n) << "\n";
+        }
+        if (s == "set"){
+            int l , r , new_val;
+            cin >> l >> r >> new_val;
+            delta(root ,--l , r , new_val , 0 , n , true);
+        }
+        if (s == "add"){
+            int l , r , new_val;
+            cin >> l >> r >> new_val;
+            delta(root , --l , r , new_val , 0 , n , false);
+        }
+    }
+}
