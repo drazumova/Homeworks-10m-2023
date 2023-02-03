@@ -1,0 +1,17 @@
+#include <bits/stdc++.h>
+using namespace std;
+void func(){
+    for(int i = 1; i <= 1e6 ;i++){
+    cout<<  i << " " << this_thread::get_id << endl;
+    }
+}
+
+int main(){
+    thread tg2(func);
+    tg2.detach();
+    thread tg3(func);
+    tg3.detach();
+    thread tg1(func);
+    tg1.join();
+    return 0;
+}
