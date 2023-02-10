@@ -2,7 +2,7 @@
 using namespace std;
 void func(){
     for(int i = 1; i <= 1e6 ;i++){
-    cout<<  i << " " << this_thread::get_id << endl;
+    cout<<  i << " " << this_thread::get_id() << endl;
     }
 }
 
