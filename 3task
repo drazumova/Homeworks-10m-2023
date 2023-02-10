@@ -1,0 +1,53 @@
+#include <iostream>
+#include <thread>
+#include <vector>
+using namespace std;
+
+long long sum = 0;
+long long a;
+bool t = true;;
+
+mutex mtx;
+
+int n = 5;
+
+void cf()
+{
+    while(t)
+    {
+        mtx.lock();
+        cout << sum << '\n';
+        cout.flush();
+        mtx.unlock();
+        this_thread::sleep_for(3ms);
+    }
+}
+
+void f()
+{
+    mtx.lock();
+    while(cin >> a)
+    {
+        sum += a;
+        mtx.unlock();
+        this_thread::sleep_for(1ms);
+        mtx.lock();
+    }
+    t = false;
+}
+
+int main()
+{
+    vector<thread> v;
+    for(int i = 0; i < n; i++)
+    {
+        thread t(f);
+        v.push_back(move(t));
+    }
+    thread T(cf);
+
+    for(int i = 0; i < n; i++)
+    {
+        v[i].join();
+    }
+}
