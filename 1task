@@ -1,0 +1,25 @@
+#include <iostream>
+#include <thread>
+using namespace std;
+
+int N = 1000000;
+mutex mtx;
+void f()
+{
+    for(int i = 1; i <= N; i++)
+    {
+        mtx.lock();
+        cout << i << ' ' << this_thread::get_id() << '\n';
+        cout.flush();
+        mtx.unlock();
+        this_thread::sleep_for(2ms);
+    }
+}
+
+int main()
+{
+    thread t1(f), t2(f), t3(f);
+    t3.join();
+    t2.join();
+    t1.join();
+}
