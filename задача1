@@ -1,0 +1,20 @@
+#include <iostream>
+#include <thread>
+using namespace std;
+
+void f(){
+    for(int i=0;i<1000000;i++){
+        cout<<i+1<<' '<<this_thread::get_id()<<endl;
+        cout.flush();
+        this_thread::yield();
+    }
+}
+
+int main(){
+    thread t1(f);
+    thread t2(f);
+    thread t3(f);
+    t1.join();
+    t2.join();
+    t3.join();
+}
