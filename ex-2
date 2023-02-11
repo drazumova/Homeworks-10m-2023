@@ -4,14 +4,16 @@ using namespace std;
 vector <int> V(100000, 10);
 long long A;
 void f1(){
-    for(auto i = 0; i < 100000; ++i)
+    for(auto i = 0; i < 100000; ++i){
             A+=V[i];
-            this_thread::sleep_for(chrono::milliseconds(1000));
+            this_thread::sleep_for(chrono::milliseconds(1000000));
+    }
 }
 void f2(){
-    for(auto i = 0; i < 100000; ++i)
+    for(auto i = 0; i < 100000; ++i){
             cout << A << " ";
-            this_thread::sleep_for(chrono::milliseconds(1000));
+            this_thread::sleep_for(chrono::milliseconds(1000000));
+    }
 }
 int main(){
     vector <int> V(100000, 10);
