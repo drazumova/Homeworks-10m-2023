@@ -11,9 +11,24 @@ string f()
     return name;
 }
 
+bool w = false;
+string s;
+void c()
+{
+    while(!w)
+    {
+        this_thread::sleep_for(1ms);
+    }
+    cout << "Добро пожаловать, " << s;
+    return;
+}
+
 int main()
 {
+    thread t(c);
     auto username = async(launch::async, f);
     username.wait();
-    cout << "Добро пожаловать, " << username.get();
+    s = username.get();
+    w = true;
+    t.join();
 }
