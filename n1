@@ -1,0 +1,28 @@
+#include<bits/stdc++.h>
+#define int int64_t
+using namespace std;
+const int MOD = 10e9 + 7;
+int factorial(int n){
+    int res = 1;
+    for(int i = 1 ; i <= n ; i++){
+        res *= i;
+        res = res % MOD;
+    }
+    return res;
+}
+void generator(){
+    int n , s;
+    cin >> n >> s;
+    srand(s);
+    for(int i = 0 ; i < n ; i++){
+        int x;
+        x = (rand() % 101);
+        auto fac = async(launch::async , factorial , x);
+        fac.wait();
+        cout << x << " " << fac.get() << "\n";
+    }
+}
+signed main(){
+    generator();
+}
+// вычисления были по модулю , потому что писать длинную арифметику - довольно неприятное занятие //
