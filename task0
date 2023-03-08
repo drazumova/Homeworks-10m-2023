@@ -1,0 +1,19 @@
+#include <iostream>
+#include<thread>
+#include<future>
+#include<string>
+using namespace std;
+
+string f()
+{
+    string name;
+    cin >> name;
+    return name;
+}
+
+int main()
+{
+    auto username = async(launch::async, f);
+    username.wait();
+    cout << "Добро пожаловать, " << username.get();
+}
