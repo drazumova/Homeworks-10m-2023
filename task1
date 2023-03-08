@@ -1,0 +1,42 @@
+#include <iostream>
+#include<thread>
+#include<future>
+#include<string>
+#include<vector>
+#include<random>
+using namespace std;
+
+long long mod = 10e9 + 9;
+void f(long long n)
+{
+    cout << n << " : ";
+    if(n <= 0)
+    {
+        cout << "-1-1-1-1\n";
+        return;
+    }
+    long long ans = 1;
+    for(int i = 2; i <= n; i++)
+    {
+        ans *= i;
+        ans %= mod;
+    }
+    cout << ans << "\n";
+}
+
+int main()
+{
+    int n, s;
+    cin >> n >> s;
+    srand(s);
+    vector<long long> val;
+    for(int i = 0; i < n; i++)
+    {
+        val.push_back(rand() % 101);
+    }
+    for(int i = 0; i < n; i++)
+    {
+        auto ans = async(launch::async, f, val[i]);
+        ans.wait();
+    }
+}
