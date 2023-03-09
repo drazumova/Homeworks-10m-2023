@@ -10,7 +10,7 @@ class Queue {
     queue <int> q;
     int s;
     mutex mtx;
-    //condition_variable cond;
+    condition_variable cond;
 
     public:
     Queue() {
@@ -21,7 +21,7 @@ class Queue {
         mtx.lock();
         q.push(x);
         s++;
-        //cond.notify_one();
+        cond.notify_one();
         mtx.unlock();
     }
 
@@ -36,6 +36,17 @@ class Queue {
 
     size_t size() {
         return (size_t)q.size();
+    }
+    
+    int wait_and_pop() {
+        if((int)size() == 0) {
+            unique_lock<mutex> l(mtx);
+            cond.wait(l, [&]{return s == 0;});
+            return pop();
+        }
+        else {
+            return pop();
+        }
     }
 };
 
