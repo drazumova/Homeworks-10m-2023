@@ -1,0 +1,67 @@
+#include <iostream>
+#include <mutex>
+#include <condition_variable>
+using namespace std;
+
+class Node
+{
+    public:
+    int value;
+    Node *next;
+
+    Node(int val)
+    {
+        value = val;
+        next = nullptr;
+    }
+};
+class Queue
+{
+    public:
+    Node *head = nullptr;
+    Node *tail = nullptr;
+    int size = 0;
+    mutex mtx;
+    condition_variable cnd;
+
+    void pop()
+    {
+        mtx.lock();
+        Node *h = head->next;
+        delete head;
+        head = h;
+        size--;
+        mtx.unlock();
+    }
+    int qsize()
+    {
+        mtx.lock();
+        return size;
+        mtx.unlock();
+    }
+    void put(int val)
+    {
+        mtx.lock();
+        Node *new_head = new Node(val);
+        new_head->next = head;
+        head = new_head;
+        cnd.notify_one();
+        mtx.unlock();
+    }
+    void wait_and_pop()
+    {
+        unique_lock<mutex> l(mtx);
+        while(size == 0)
+        {
+            cnd.wait(l);
+        }
+        Node *h = head->next;
+        delete head;
+        head = h;
+        size--;
+    }
+};
+
+int main()
+{
+}
