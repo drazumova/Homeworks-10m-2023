@@ -1,0 +1,44 @@
+#include <iostream>
+#include <mutex>
+#include <condition_variable>
+#include <queue>
+using namespace std;
+
+class Queue
+{
+    public:
+    queue<int> q;
+    mutex mtx;
+    condition_variable cnd;
+    void pop()
+    {
+        mtx.lock();
+        q.pop();
+        mtx.unlock();
+    }
+    int qsize()
+    {
+        mtx.lock();
+        return q.size();
+        mtx.unlock();
+    }
+    void put(int val)
+    {
+        mtx.lock();
+        q.push(val);
+        mtx.unlock();
+    }
+    void wait_and_pop()
+    {
+        unique_lock<mutex> l(mtx);
+        while(q.size() == 0)
+        {
+            cnd.wait(l);
+        }
+        q.pop();
+    }
+};
+
+int main()
+{
+}
