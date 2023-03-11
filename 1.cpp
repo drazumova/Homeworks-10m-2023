@@ -4,7 +4,7 @@
 using namespace std;
 std::mutex m;
 void f(){
-    for(int i=1;i<=10;i++){
+    for(int i=1;i<=1000000;i++){
         m.lock();
         cout<<i<<" "<<this_thread::get_id()<<"\n";
         m.unlock();
