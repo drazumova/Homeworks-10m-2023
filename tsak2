@@ -1,0 +1,82 @@
+//ЭТО НЕ РАБОТАЕТ, НО ЗДРАВОЕ ЗЕРНО ЯВНО ДОЛЖНО БЫТЬ
+#include <iostream>
+#include <string>
+#include <thread>
+#include <set>
+#include <condition_variable>
+using namespace std;
+
+int N1, N2;
+int ans = 0;
+string s1[100000], s2[100000];
+
+condition_variable cnd;
+mutex mtx;
+mutex mtx1;
+multiset<string> a1;
+
+void f1()
+{
+    for(int i = 0; i < N1; i++)
+    {
+        cin >> s1[i];
+        a1.insert(s1[i]);
+        cnd.notify_one();
+    }
+}
+
+void f2()
+{
+    for(int i = 0; i < N2; i++)
+    {
+        cin >> s2[i];
+        string q = s2[i]; 
+        set<string> :: iterator it = a1.begin();
+        bool success = false;
+        int k = a1.size();
+        while(!success)
+        {
+            while(it != a1.end())
+            {
+                string s = *it;
+                bool fail = false;
+                for(int j = 0; j < s.size() - 1; j++)
+                {
+                    if(s[j + 1] != q[j])
+                    {
+                        fail = true;
+                        break;
+                    }
+                }
+                if(!fail)
+                {
+                    mtx1.lock();
+                    ans++;
+                    a1.erase(it);
+                    success = true;
+                    mtx1.unlock();
+                    break;
+                }
+            }
+            //типа ждем пока кол-во эл-тов увеличится
+            k = a1.size();
+            if(k == N2)
+                break;
+            unique_lock<mutex> l(mtx);
+            while(k == a1.size())
+            {
+                cnd.wait(l);
+            }
+        }
+    }
+}
+
+int main()
+{
+    cin >> N1 >> N2;
+    
+    thread t1(f1), t2(f2);
+    t1.join();
+    t2.join();
+    cout << ans;
+}

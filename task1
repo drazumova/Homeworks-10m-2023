@@ -1,0 +1,68 @@
+#include <iostream>
+#include <string>
+#include <thread>
+using namespace std;
+
+long long a[1000000] = {};
+long long M;
+
+mutex mtx;
+long long sum = 0;
+
+void f(int st, int len)
+{
+    
+    if(len == 1)
+    {
+        mtx.lock();
+        sum += a[st];
+        sum %= M;
+        mtx.unlock();
+        return;
+    }
+    if(len == 2)
+    {
+        mtx.lock();
+        sum += a[st] + a[st + 1];
+        sum %= M;
+        mtx.unlock();
+        return;
+    }
+    
+    int st2, st3, len1;
+    if(len % 3 != 2)
+    {
+        mtx.lock();
+        len1 = len / 3;
+        st2 = st + len1;
+        st3 = st2 + len1;
+        mtx.unlock();
+    }
+    else
+    {
+        mtx.lock();
+        len1 = len / 3 + 1;
+        st2 = st + len1;
+        st3 = st2 + len1;
+        mtx.unlock();
+    }
+    thread t1(f, st, len1), t2(f, st2, len1), t3(f, st3, len - 2 * len1);
+    t1.join();
+    t2.join();
+    t3.join();
+    return;
+}
+
+int main()
+{
+    int n;
+    cin >> n >> M;
+    
+    for(int i = 0; i < n; i++)
+    {
+        cin >> a[i];
+    }
+    
+    f(0, n);
+    cout << sum;
+}
