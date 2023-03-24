@@ -1,0 +1,62 @@
+#include <iostream>
+#include <thread>
+#include <future>
+#include <mutex>
+#include <chrono>
+#include<bits/stdc++.h>
+using namespace std;
+
+recursive_mutex mtx;
+atomic <int> fork[5];
+
+bool fork_checker(int q){
+	mtx.lock();
+	if(fork[q % 5].load() == 0 && fork[(q-1) % 5].load() == 0){
+		mtx.unlock();
+		return true;
+	}
+	else
+	{
+		mtx.unlock();
+		return false;
+	}
+}
+
+void philosopher(int nom){
+	while(true){
+		cout << "philosopher " << nom << " meditates" << endl;
+		this_thread::sleep_for(chrono::milliseconds(4000));
+		cout << "philosopher " << nom << " wants to eat" << endl;
+		while(true){
+			if(fork_checker(nom)){
+				cout << "philosopher " << nom << " picks up left fork" << endl;
+				fork[nom%5].store(nom);
+				cout << "philosopher " << nom << " picks up right fork" << endl;
+				fork[(nom-1)%5].store(nom);
+				break;
+			}
+			this_thread::sleep_for(chrono::milliseconds(1000));
+		}
+		cout << "philosopher " << nom << " eats" << endl;
+		this_thread::sleep_for(chrono::milliseconds(10000));
+		cout << "philosopher " << nom << " puts down his forks" << endl;
+		fork[(nom-1)%5].store(0);
+		fork[nom%5].store(0);
+	}
+}
+	
+int main(){
+	for(int i; i < 5; i++){
+		fork[i].store(0);
+	}
+	thread th1(philosopher, 1);
+	thread th2(philosopher, 2);
+	thread th3(philosopher, 3);
+	thread th4(philosopher, 4);
+	thread th5(philosopher, 5);
+	th1.join();
+	th2.join();
+	th3.join();
+	th4.join();
+	th5.join();
+}
